@@ -23,6 +23,15 @@ export function useMagicColumnWidths(tableRef, getState, orig) {
      * which stores column widths in the brower's localstorage.
      */
     function onStartResize(ev) {
+        // The table may stretch restored widths to fill the available space.
+        // Freeze all rendered widths before resizing so the browser does not
+        // redistribute that space as the selected column follows the pointer.
+        const headers = [...tableRef.el.querySelectorAll("thead th")];
+        const widths = headers.map((th) => th.getBoundingClientRect().width);
+        headers.forEach((th, index) => {
+            th.style.width = `${widths[index]}px`;
+        });
+
         // Call original method
         const res = this.columnWidths.onStartResizeOrig(ev);
         const resizeStoppingEvents = ["keydown", "pointerdown", "pointerup"];
